@@ -20,6 +20,18 @@ skill-release-gate check <path> [--format markdown|json]
 
 The command reads local files only. It exits with code `1` when a folder fails release blockers.
 
+## Verify
+
+Run the release-readiness gate before promoting the package:
+
+```bash
+npm run check
+npm test
+npm run smoke
+npm run package:smoke
+npm run release:check
+```
+
 ## What It Checks
 
 - Activation guidance
