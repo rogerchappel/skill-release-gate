@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import { checkSkillFolder, renderJson, renderMarkdown } from "../src/index.js";
+import { writeFileSync } from "node:fs";
 
 function printHelp() {
   console.log(`skill-release-gate
 
 Usage:
-  skill-release-gate check <path> [--format markdown|json]
+  skill-release-gate check <path> [--format markdown|json] [--output file]
 
 Checks an agent skill folder for release-readiness evidence.`);
 }
@@ -32,16 +33,24 @@ if (!target) {
 
 const formatIndex = args.indexOf("--format");
 const format = formatIndex >= 0 ? args[formatIndex + 1] : "markdown";
+const outputIndex = args.indexOf("--output");
+const outputPath = outputIndex >= 0 ? args[outputIndex + 1] : "";
 
 try {
   const report = checkSkillFolder(target);
+  let rendered;
   if (format === "json") {
-    console.log(renderJson(report));
+    rendered = renderJson(report);
   } else if (format === "markdown") {
-    console.log(renderMarkdown(report));
+    rendered = renderMarkdown(report);
   } else {
     console.error(`Unsupported format: ${format}`);
     process.exit(2);
+  }
+  if (outputPath) {
+    writeFileSync(outputPath, rendered);
+  } else {
+    console.log(rendered);
   }
   process.exit(report.status === "fail" ? 1 : 0);
 } catch (error) {
