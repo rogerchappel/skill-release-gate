@@ -25,5 +25,11 @@ test("renderers expose deterministic report data", () => {
   const report = checkSkillFolder("fixtures/pass");
   const json = JSON.parse(renderJson(report));
   assert.equal(json.tool, "skill-release-gate");
+  assert.equal(json.threshold, 70);
   assert.match(renderMarkdown(report), /Status: pass/);
+});
+
+test("threshold can hold a low-scoring package in warning status", () => {
+  const report = checkSkillFolder("fixtures/pass", { threshold: 101 });
+  assert.equal(report.status, "warn");
 });
