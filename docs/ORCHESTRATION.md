@@ -8,3 +8,5 @@ Agents should run this tool before proposing a public skill release.
 4. Attach JSON output when a reviewer needs machine-readable evidence.
 
 The command performs local file reads only. It does not publish, install, push, or contact remote services.
+
+Use `docs/REPORT_SCHEMA.md` when another tool needs to consume the JSON output.
