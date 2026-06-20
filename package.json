@@ -1,0 +1,33 @@
+{
+  "name": "skill-release-gate",
+  "version": "0.1.0",
+  "description": "Local release-readiness checks for reusable agent skill folders.",
+  "type": "module",
+  "bin": {
+    "skill-release-gate": "./bin/skill-release-gate.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/index.js && node --check bin/skill-release-gate.js",
+    "smoke": "node bin/skill-release-gate.js check fixtures/pass --format markdown",
+    "build": "node scripts/build.js"
+  },
+  "keywords": [
+    "agent-skills",
+    "release-readiness",
+    "cli",
+    "quality-gate"
+  ],
+  "author": "Roger Chappel",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "SKILL.md",
+    "README.md"
+  ]
+}
