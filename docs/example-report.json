@@ -1,0 +1,89 @@
+{
+  "tool": "skill-release-gate",
+  "path": "/Users/roger/Developer/my-opensource/skill-release-gate/fixtures/pass",
+  "name": "pass",
+  "score": 100,
+  "threshold": 70,
+  "status": "pass",
+  "files": [
+    "SKILL.md",
+    "README.md",
+    "docs/PRD.md",
+    "docs/TASKS.md",
+    "docs/ORCHESTRATION.md"
+  ],
+  "findings": [
+    {
+      "id": "activation",
+      "title": "Activation guidance",
+      "severity": "error",
+      "result": "pass",
+      "message": "Evidence found.",
+      "weight": 15
+    },
+    {
+      "id": "inputs",
+      "title": "Required inputs",
+      "severity": "error",
+      "result": "pass",
+      "message": "Evidence found.",
+      "weight": 10
+    },
+    {
+      "id": "tools",
+      "title": "Tool requirements",
+      "severity": "warn",
+      "result": "pass",
+      "message": "Evidence found.",
+      "weight": 10
+    },
+    {
+      "id": "side-effects",
+      "title": "Side-effect boundaries",
+      "severity": "error",
+      "result": "pass",
+      "message": "Evidence found.",
+      "weight": 15
+    },
+    {
+      "id": "examples",
+      "title": "Examples",
+      "severity": "warn",
+      "result": "pass",
+      "message": "Evidence found.",
+      "weight": 10
+    },
+    {
+      "id": "verification",
+      "title": "Verification workflow",
+      "severity": "error",
+      "result": "pass",
+      "message": "Evidence found.",
+      "weight": 15
+    },
+    {
+      "id": "limitations",
+      "title": "Limitations",
+      "severity": "warn",
+      "result": "pass",
+      "message": "Evidence found.",
+      "weight": 10
+    },
+    {
+      "id": "release-notes",
+      "title": "Release notes",
+      "severity": "warn",
+      "result": "pass",
+      "message": "Evidence found.",
+      "weight": 10
+    },
+    {
+      "id": "fixtures",
+      "title": "Fixture evidence",
+      "severity": "warn",
+      "result": "pass",
+      "message": "Evidence found.",
+      "weight": 5
+    }
+  ]
+}
