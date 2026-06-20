@@ -6,7 +6,7 @@ function printHelp() {
   console.log(`skill-release-gate
 
 Usage:
-  skill-release-gate check <path> [--format markdown|json] [--output file]
+  skill-release-gate check <path> [--format markdown|json] [--output file] [--threshold 70]
 
 Checks an agent skill folder for release-readiness evidence.`);
 }
@@ -35,9 +35,16 @@ const formatIndex = args.indexOf("--format");
 const format = formatIndex >= 0 ? args[formatIndex + 1] : "markdown";
 const outputIndex = args.indexOf("--output");
 const outputPath = outputIndex >= 0 ? args[outputIndex + 1] : "";
+const thresholdIndex = args.indexOf("--threshold");
+const threshold = thresholdIndex >= 0 ? Number(args[thresholdIndex + 1]) : 70;
+
+if (!Number.isFinite(threshold) || threshold < 0 || threshold > 100) {
+  console.error("--threshold must be a number from 0 to 100.");
+  process.exit(2);
+}
 
 try {
-  const report = checkSkillFolder(target);
+  const report = checkSkillFolder(target, { threshold });
   let rendered;
   if (format === "json") {
     rendered = renderJson(report);

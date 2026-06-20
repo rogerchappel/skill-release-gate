@@ -102,13 +102,13 @@ function hasFixtureEvidence(root) {
   return false;
 }
 
-function classifyStatus(score, findings) {
+function classifyStatus(score, findings, threshold = 70) {
   if (findings.some((finding) => finding.result === "fail" && finding.severity === "error")) return "fail";
-  if (score < 70 || findings.some((finding) => finding.result === "warn")) return "warn";
+  if (score < threshold || findings.some((finding) => finding.result === "warn")) return "warn";
   return "pass";
 }
 
-export function checkSkillFolder(targetPath) {
+export function checkSkillFolder(targetPath, options = {}) {
   const root = resolve(targetPath);
   if (!existsSync(root) || !statSync(root).isDirectory()) {
     throw new Error(`Skill folder not found: ${targetPath}`);
@@ -149,7 +149,8 @@ export function checkSkillFolder(targetPath) {
     path: root,
     name: basename(root),
     score,
-    status: classifyStatus(score, findings),
+    threshold: options.threshold ?? 70,
+    status: classifyStatus(score, findings, options.threshold ?? 70),
     files: files.map((file) => file.name),
     findings
   };
