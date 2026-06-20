@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 
 const REQUIRED_DOCS = ["SKILL.md", "README.md", "docs/PRD.md", "docs/TASKS.md", "docs/ORCHESTRATION.md"];
+const CONFIG_FILES = [".skill-release-gate.json", "skill-release-gate.config.json"];
 
 const CHECKS = [
   {
@@ -82,9 +83,30 @@ function readIfExists(path) {
   return existsSync(path) ? readFileSync(path, "utf8") : "";
 }
 
-function collectFiles(root) {
+export function loadGateConfig(targetPath) {
+  const root = resolve(targetPath);
+  for (const name of CONFIG_FILES) {
+    const path = join(root, name);
+    if (!existsSync(path)) continue;
+    try {
+      const config = JSON.parse(readFileSync(path, "utf8"));
+      return { path, config };
+    } catch (error) {
+      throw new Error(`Invalid ${name}: ${error.message}`);
+    }
+  }
+  return { path: "", config: {} };
+}
+
+function configuredDocs(config) {
+  const extra = Array.isArray(config.extraRequiredDocs) ? config.extraRequiredDocs : [];
+  const ignore = new Set(Array.isArray(config.ignoreRequiredDocs) ? config.ignoreRequiredDocs : []);
+  return [...REQUIRED_DOCS, ...extra].filter((name, index, docs) => docs.indexOf(name) === index && !ignore.has(name));
+}
+
+function collectFiles(root, requiredDocs) {
   const files = [];
-  for (const name of REQUIRED_DOCS) {
+  for (const name of requiredDocs) {
     const path = join(root, name);
     if (existsSync(path)) files.push({ name, path, text: readIfExists(path) });
   }
@@ -114,7 +136,9 @@ export function checkSkillFolder(targetPath, options = {}) {
     throw new Error(`Skill folder not found: ${targetPath}`);
   }
 
-  const files = collectFiles(root);
+  const { path: configPath, config } = loadGateConfig(root);
+  const requiredDocs = configuredDocs(config);
+  const files = collectFiles(root, requiredDocs);
   const combined = files.map((file) => file.text).join("\n\n");
   const findings = [];
   let score = 0;
@@ -132,7 +156,7 @@ export function checkSkillFolder(targetPath, options = {}) {
     });
   }
 
-  const missingDocs = REQUIRED_DOCS.filter((name) => !existsSync(join(root, name)));
+  const missingDocs = requiredDocs.filter((name) => !existsSync(join(root, name)));
   for (const name of missingDocs) {
     findings.push({
       id: `missing-${name}`,
@@ -149,8 +173,9 @@ export function checkSkillFolder(targetPath, options = {}) {
     path: root,
     name: basename(root),
     score,
-    threshold: options.threshold ?? 70,
-    status: classifyStatus(score, findings, options.threshold ?? 70),
+    threshold: options.threshold ?? config.threshold ?? 70,
+    status: classifyStatus(score, findings, options.threshold ?? config.threshold ?? 70),
+    config: configPath ? { path: configPath, requiredDocs } : { path: "", requiredDocs },
     files: files.map((file) => file.name),
     findings
   };
@@ -166,6 +191,8 @@ export function renderMarkdown(report) {
     "",
     `Status: ${report.status}`,
     `Score: ${report.score}/100`,
+    `Threshold: ${report.threshold}`,
+    `Config: ${report.config.path || "default"}`,
     "",
     "## Files",
     ...report.files.map((file) => `- ${file}`),
