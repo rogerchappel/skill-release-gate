@@ -32,6 +32,8 @@ The command reads local files only. It exits with code `1` when a folder fails r
 - Release notes
 - Fixture or example evidence
 
+See `docs/CHECKS.md` for weights and blocker rules.
+
 ## Safety Notes
 
 The tool does not install skills, publish packages, push branches, tag releases, or call remote APIs. Treat its score as reviewer evidence, not as a guarantee.
