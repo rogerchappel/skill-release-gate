@@ -6,3 +6,5 @@
 - [x] Add fixture-backed tests.
 - [x] Document skill usage and release workflow.
 - [x] Add smoke command and validation script.
+- [x] Add static JSON policy config for stricter skill folders.
+- [x] Surface active config and threshold in release reports.

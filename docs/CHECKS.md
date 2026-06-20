@@ -15,3 +15,15 @@
 | Fixture evidence | 5 | No |
 
 The default passing threshold is 70, but any failing blocker keeps the status at `fail`.
+
+## Config
+
+Skill folders can include `.skill-release-gate.json` or `skill-release-gate.config.json`.
+
+Supported keys:
+
+- `threshold`: default score threshold for that folder.
+- `extraRequiredDocs`: additional local documentation paths that must exist.
+- `ignoreRequiredDocs`: default documentation paths to skip for that folder.
+
+The config is parsed as JSON only. It cannot run code, import packages, or perform side effects.

@@ -24,11 +24,13 @@ The checker reads local files and writes only when the user asks for redirected 
 2. If the status is `fail`, fix missing blockers such as activation, side-effect boundaries, or verification.
 3. If the status is `warn`, decide whether warnings are acceptable for an incubating release.
 4. Run `skill-release-gate check <path> --format json` for durable evidence when needed.
+5. If the folder has a stricter local policy, add static `.skill-release-gate.json` with `threshold`, `extraRequiredDocs`, or `ignoreRequiredDocs`.
 
 ## Examples
 
 ```bash
 skill-release-gate check ./fixtures/pass --format markdown
+skill-release-gate check ./fixtures/configured --format markdown
 skill-release-gate check ./skills/repo-review --format json
 ```
 
