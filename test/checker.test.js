@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { checkSkillFolder, renderJson, renderMarkdown } from "../src/index.js";
+import { checkSkillFolder, loadGateConfig, renderJson, renderMarkdown } from "../src/index.js";
 
 test("passing fixture is release ready", () => {
   const report = checkSkillFolder("fixtures/pass");
@@ -32,4 +32,18 @@ test("renderers expose deterministic report data", () => {
 test("threshold can hold a low-scoring package in warning status", () => {
   const report = checkSkillFolder("fixtures/pass", { threshold: 101 });
   assert.equal(report.status, "warn");
+});
+
+test("loads optional gate config from the skill folder", () => {
+  const { config } = loadGateConfig("fixtures/configured");
+  assert.equal(config.threshold, 90);
+  assert.deepEqual(config.extraRequiredDocs, ["docs/SAFETY.md"]);
+});
+
+test("config can add required docs and default threshold", () => {
+  const report = checkSkillFolder("fixtures/configured");
+  assert.equal(report.threshold, 90);
+  assert.equal(report.status, "pass");
+  assert.ok(report.config.requiredDocs.includes("docs/SAFETY.md"));
+  assert.ok(report.files.includes("docs/SAFETY.md"));
 });
