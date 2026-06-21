@@ -34,6 +34,18 @@ Add `.skill-release-gate.json` or `skill-release-gate.config.json` to a skill fo
 
 CLI `--threshold` overrides the configured threshold for one run. Config files are static JSON and never execute code.
 
+## Verify
+
+Run the release-readiness gate before promoting the package:
+
+```bash
+npm run check
+npm test
+npm run smoke
+npm run package:smoke
+npm run release:check
+```
+
 ## What It Checks
 
 - Activation guidance
