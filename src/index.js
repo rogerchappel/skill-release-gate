@@ -130,6 +130,22 @@ function classifyStatus(score, findings, threshold = 70) {
   return "pass";
 }
 
+function summarizeFindings(findings) {
+  const summary = {
+    pass: 0,
+    warn: 0,
+    fail: 0,
+    error: 0,
+    warning: 0
+  };
+  for (const finding of findings) {
+    summary[finding.result] += 1;
+    if (finding.severity === "error") summary.error += 1;
+    if (finding.severity === "warn") summary.warning += 1;
+  }
+  return summary;
+}
+
 export function checkSkillFolder(targetPath, options = {}) {
   const root = resolve(targetPath);
   if (!existsSync(root) || !statSync(root).isDirectory()) {
@@ -168,13 +184,17 @@ export function checkSkillFolder(targetPath, options = {}) {
     });
   }
 
+  const threshold = options.threshold ?? config.threshold ?? 70;
+  const summary = summarizeFindings(findings);
+
   return {
     tool: "skill-release-gate",
     path: root,
     name: basename(root),
     score,
-    threshold: options.threshold ?? config.threshold ?? 70,
-    status: classifyStatus(score, findings, options.threshold ?? config.threshold ?? 70),
+    threshold,
+    status: classifyStatus(score, findings, threshold),
+    summary,
     config: configPath ? { path: configPath, requiredDocs } : { path: "", requiredDocs },
     files: files.map((file) => file.name),
     findings
@@ -193,6 +213,7 @@ export function renderMarkdown(report) {
     `Score: ${report.score}/100`,
     `Threshold: ${report.threshold}`,
     `Config: ${report.config.path || "default"}`,
+    `Summary: ${report.summary.pass} pass, ${report.summary.warn} warn, ${report.summary.fail} fail`,
     "",
     "## Files",
     ...report.files.map((file) => `- ${file}`),
