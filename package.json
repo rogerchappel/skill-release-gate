@@ -12,7 +12,8 @@
     "smoke": "node bin/skill-release-gate.js check fixtures/pass --format markdown",
     "build": "node scripts/build.js",
     "package:smoke": "node scripts/package-smoke.js",
-    "release:check": "npm run check && npm test && npm run build && npm run smoke && npm run package:smoke"
+    "release:check": "npm run check && npm test && npm run build && npm run smoke && npm run package:smoke",
+    "lint": "npm run check"
   },
   "keywords": [
     "agent-skills",
