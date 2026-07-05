@@ -9,7 +9,8 @@ Ship.
 - Local Node CLI.
 - Readiness scoring engine.
 - Markdown and JSON renderers.
-- Pass, warn, and fail fixtures.
+- Pass, warn, fail, and waived fixtures.
+- Configured waiver reporting with visible reasons.
 - Skill instructions and required project docs.
 
 ## Verification
@@ -31,6 +32,12 @@ bash scripts/validate.sh
 - `npm run build` wrote `dist/package-check.txt`.
 - `npm run smoke` produced a passing Markdown report for `fixtures/pass`.
 - `bash scripts/validate.sh` reran the full validation sequence successfully.
+
+## 2026-07-05 Local Evidence
+
+- Added config-based check waivers with JSON and Markdown report output.
+- Added a waived fixture that proves reasons remain visible.
+- Verification reran tests, checks, build, smoke, and validation successfully.
 
 ## Known Limits
 
