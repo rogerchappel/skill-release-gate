@@ -25,5 +25,8 @@ Supported keys:
 - `threshold`: default score threshold for that folder.
 - `extraRequiredDocs`: additional local documentation paths that must exist.
 - `ignoreRequiredDocs`: default documentation paths to skip for that folder.
+- `waivers`: object mapping a check id to the human-readable reason it is waived.
+
+Waived checks count toward the score and render as `waived`, but the reason remains visible in JSON and Markdown reports. Use waivers for documented, reviewed exceptions rather than to hide missing evidence.
 
 The config is parsed as JSON only. It cannot run code, import packages, or perform side effects.

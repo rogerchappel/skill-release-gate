@@ -10,6 +10,14 @@ The JSON report is stable enough for local automation.
   "score": 100,
   "threshold": 70,
   "status": "pass",
+  "summary": {
+    "pass": 8,
+    "waived": 1,
+    "warn": 0,
+    "fail": 0,
+    "error": 4,
+    "warning": 5
+  },
   "files": ["SKILL.md"],
   "findings": [
     {
@@ -25,3 +33,5 @@ The JSON report is stable enough for local automation.
 ```
 
 Statuses are `pass`, `warn`, or `fail`.
+
+Finding results are `pass`, `waived`, `warn`, or `fail`. Waived findings include the configured reason in `message`.

@@ -133,6 +133,7 @@ function classifyStatus(score, findings, threshold = 70) {
 function summarizeFindings(findings) {
   const summary = {
     pass: 0,
+    waived: 0,
     warn: 0,
     fail: 0,
     error: 0,
@@ -154,6 +155,7 @@ export function checkSkillFolder(targetPath, options = {}) {
 
   const { path: configPath, config } = loadGateConfig(root);
   const requiredDocs = configuredDocs(config);
+  const waivers = config.waivers && typeof config.waivers === "object" ? config.waivers : {};
   const files = collectFiles(root, requiredDocs);
   const combined = files.map((file) => file.text).join("\n\n");
   const findings = [];
@@ -161,13 +163,14 @@ export function checkSkillFolder(targetPath, options = {}) {
 
   for (const check of CHECKS) {
     const passed = check.fileCheck ? hasFixtureEvidence(root) : check.pattern.test(combined);
-    if (passed) score += check.weight;
+    const waiverReason = typeof waivers[check.id] === "string" ? waivers[check.id].trim() : "";
+    if (passed || waiverReason) score += check.weight;
     findings.push({
       id: check.id,
       title: check.title,
       severity: check.severity,
-      result: passed ? "pass" : check.severity === "error" ? "fail" : "warn",
-      message: passed ? "Evidence found." : check.message,
+      result: passed ? "pass" : waiverReason ? "waived" : check.severity === "error" ? "fail" : "warn",
+      message: passed ? "Evidence found." : waiverReason ? `Waived: ${waiverReason}` : check.message,
       weight: check.weight
     });
   }
@@ -213,7 +216,7 @@ export function renderMarkdown(report) {
     `Score: ${report.score}/100`,
     `Threshold: ${report.threshold}`,
     `Config: ${report.config.path || "default"}`,
-    `Summary: ${report.summary.pass} pass, ${report.summary.warn} warn, ${report.summary.fail} fail`,
+    `Summary: ${report.summary.pass} pass, ${report.summary.waived} waived, ${report.summary.warn} warn, ${report.summary.fail} fail`,
     "",
     "## Files",
     ...report.files.map((file) => `- ${file}`),

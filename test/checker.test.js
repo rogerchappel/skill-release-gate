@@ -26,9 +26,9 @@ test("renderers expose deterministic report data", () => {
   const json = JSON.parse(renderJson(report));
   assert.equal(json.tool, "skill-release-gate");
   assert.equal(json.threshold, 70);
-  assert.deepEqual(json.summary, { pass: 9, warn: 0, fail: 0, error: 4, warning: 5 });
+  assert.deepEqual(json.summary, { pass: 9, waived: 0, warn: 0, fail: 0, error: 4, warning: 5 });
   assert.match(renderMarkdown(report), /Status: pass/);
-  assert.match(renderMarkdown(report), /Summary: 9 pass, 0 warn, 0 fail/);
+  assert.match(renderMarkdown(report), /Summary: 9 pass, 0 waived, 0 warn, 0 fail/);
 });
 
 test("threshold can hold a low-scoring package in warning status", () => {
@@ -48,4 +48,14 @@ test("config can add required docs and default threshold", () => {
   assert.equal(report.status, "pass");
   assert.ok(report.config.requiredDocs.includes("docs/SAFETY.md"));
   assert.ok(report.files.includes("docs/SAFETY.md"));
+});
+
+test("config can waive a named check with a visible reason", () => {
+  const report = checkSkillFolder("fixtures/waived");
+  const waived = report.findings.find((finding) => finding.id === "side-effects");
+  assert.equal(report.status, "pass");
+  assert.equal(report.summary.waived, 1);
+  assert.equal(waived.result, "waived");
+  assert.match(waived.message, /Read-only skill/);
+  assert.match(renderMarkdown(report), /WAIVED Side-effect boundaries/);
 });
