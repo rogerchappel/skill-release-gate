@@ -15,10 +15,11 @@ node bin/skill-release-gate.js check fixtures/pass --format json
 ## CLI
 
 ```bash
-skill-release-gate check <path> [--format markdown|json] [--threshold 70] [--output report.md]
+skill-release-gate check <path> [--format markdown|json] [--threshold number] [--output report.md]
 ```
 
 The command reads local files only. It exits with code `1` when a folder fails release blockers.
+Option values are required when an option is present, and `--threshold` accepts a number from 0 to 100.
 
 ## Configuration
 
@@ -32,7 +33,9 @@ Add `.skill-release-gate.json` or `skill-release-gate.config.json` to a skill fo
 }
 ```
 
-CLI `--threshold` overrides the configured threshold for one run. Config files are static JSON and never execute code.
+When `--threshold` is omitted, the configured threshold is used, falling back to 70 when there is no
+configured value. CLI `--threshold` overrides the configured threshold for one run. Config files are
+static JSON and never execute code.
 
 ## Verify
 
