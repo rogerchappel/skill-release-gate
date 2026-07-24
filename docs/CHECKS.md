@@ -22,7 +22,7 @@ Skill folders can include `.skill-release-gate.json` or `skill-release-gate.conf
 
 Supported keys:
 
-- `threshold`: default score threshold for that folder.
+- `threshold`: default score threshold for that folder when the CLI does not receive `--threshold`.
 - `extraRequiredDocs`: additional local documentation paths that must exist.
 - `ignoreRequiredDocs`: default documentation paths to skip for that folder.
 - `waivers`: object mapping a check id to the human-readable reason it is waived.
@@ -30,3 +30,4 @@ Supported keys:
 Waived checks count toward the score and render as `waived`, but the reason remains visible in JSON and Markdown reports. Use waivers for documented, reviewed exceptions rather than to hide missing evidence.
 
 The config is parsed as JSON only. It cannot run code, import packages, or perform side effects.
+An explicit CLI `--threshold` value overrides the config for that run; otherwise the fallback threshold is 70.

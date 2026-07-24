@@ -6,9 +6,20 @@ function printHelp() {
   console.log(`skill-release-gate
 
 Usage:
-  skill-release-gate check <path> [--format markdown|json] [--output file] [--threshold 70]
+  skill-release-gate check <path> [--format markdown|json] [--output file] [--threshold number]
 
 Checks an agent skill folder for release-readiness evidence.`);
+}
+
+function optionValue(args, option) {
+  const index = args.indexOf(option);
+  if (index < 0) return undefined;
+  const value = args[index + 1];
+  if (!value || value.startsWith("--")) {
+    console.error(`${option} requires a value.`);
+    process.exit(2);
+  }
+  return value;
 }
 
 const args = process.argv.slice(2);
@@ -31,20 +42,18 @@ if (!target) {
   process.exit(2);
 }
 
-const formatIndex = args.indexOf("--format");
-const format = formatIndex >= 0 ? args[formatIndex + 1] : "markdown";
-const outputIndex = args.indexOf("--output");
-const outputPath = outputIndex >= 0 ? args[outputIndex + 1] : "";
-const thresholdIndex = args.indexOf("--threshold");
-const threshold = thresholdIndex >= 0 ? Number(args[thresholdIndex + 1]) : 70;
+const format = optionValue(args, "--format") ?? "markdown";
+const outputPath = optionValue(args, "--output") ?? "";
+const thresholdValue = optionValue(args, "--threshold");
+const threshold = thresholdValue === undefined ? undefined : Number(thresholdValue);
 
-if (!Number.isFinite(threshold) || threshold < 0 || threshold > 100) {
+if (threshold !== undefined && (!Number.isFinite(threshold) || threshold < 0 || threshold > 100)) {
   console.error("--threshold must be a number from 0 to 100.");
   process.exit(2);
 }
 
 try {
-  const report = checkSkillFolder(target, { threshold });
+  const report = checkSkillFolder(target, threshold === undefined ? {} : { threshold });
   let rendered;
   if (format === "json") {
     rendered = renderJson(report);
