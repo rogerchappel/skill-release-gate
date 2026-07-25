@@ -83,17 +83,54 @@ function readIfExists(path) {
   return existsSync(path) ? readFileSync(path, "utf8") : "";
 }
 
+function isPlainObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function validateGateConfig(config, name) {
+  if (!isPlainObject(config)) {
+    throw new Error(`Invalid ${name}: config must be a JSON object.`);
+  }
+  if (
+    config.threshold !== undefined &&
+    (!Number.isFinite(config.threshold) || config.threshold < 0 || config.threshold > 100)
+  ) {
+    throw new Error(`Invalid ${name}: threshold must be a number from 0 to 100.`);
+  }
+  for (const field of ["extraRequiredDocs", "ignoreRequiredDocs"]) {
+    if (
+      config[field] !== undefined &&
+      (!Array.isArray(config[field]) ||
+        config[field].some((value) => typeof value !== "string" || value.trim() === ""))
+    ) {
+      throw new Error(`Invalid ${name}: ${field} must be an array of strings with no empty entries.`);
+    }
+  }
+  if (config.waivers !== undefined) {
+    if (!isPlainObject(config.waivers)) {
+      throw new Error(`Invalid ${name}: waivers must be an object.`);
+    }
+    for (const [check, reason] of Object.entries(config.waivers)) {
+      if (typeof reason !== "string" || reason.trim() === "") {
+        throw new Error(`Invalid ${name}: waivers.${check} must be a non-empty string.`);
+      }
+    }
+  }
+}
+
 export function loadGateConfig(targetPath) {
   const root = resolve(targetPath);
   for (const name of CONFIG_FILES) {
     const path = join(root, name);
     if (!existsSync(path)) continue;
+    let config;
     try {
-      const config = JSON.parse(readFileSync(path, "utf8"));
-      return { path, config };
+      config = JSON.parse(readFileSync(path, "utf8"));
     } catch (error) {
       throw new Error(`Invalid ${name}: ${error.message}`);
     }
+    validateGateConfig(config, name);
+    return { path, config };
   }
   return { path: "", config: {} };
 }
