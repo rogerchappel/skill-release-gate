@@ -23,6 +23,32 @@ test("cli exits nonzero for failed fixture", () => {
   assert.equal(result.status, 1);
 });
 
+test("cli uses the configured threshold when no override is provided", () => {
+  const result = spawnSync("node", ["bin/skill-release-gate.js", "check", "fixtures/configured", "--format", "json"], {
+    encoding: "utf8"
+  });
+  assert.equal(result.status, 0);
+  assert.equal(JSON.parse(result.stdout).threshold, 90);
+});
+
+test("cli threshold overrides the configured threshold", () => {
+  const result = spawnSync(
+    "node",
+    ["bin/skill-release-gate.js", "check", "fixtures/configured", "--format", "json", "--threshold", "80"],
+    { encoding: "utf8" }
+  );
+  assert.equal(result.status, 0);
+  assert.equal(JSON.parse(result.stdout).threshold, 80);
+});
+
+test("cli treats warning status as a blocking review result", () => {
+  const result = spawnSync("node", ["bin/skill-release-gate.js", "check", "fixtures/review", "--format", "json"], {
+    encoding: "utf8"
+  });
+  assert.equal(result.status, 1);
+  assert.equal(JSON.parse(result.stdout).status, "warn");
+});
+
 test("cli uses the configured threshold when the option is omitted", () => {
   const result = runCli("check", "fixtures/configured", "--format", "json");
   assert.equal(result.status, 0, result.stderr);

@@ -68,7 +68,7 @@ try {
   } else {
     console.log(rendered);
   }
-  process.exit(report.status === "fail" ? 1 : 0);
+  process.exit(report.status === "pass" ? 0 : 1);
 } catch (error) {
   console.error(error.message);
   process.exit(1);

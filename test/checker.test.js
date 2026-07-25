@@ -59,3 +59,15 @@ test("config can waive a named check with a visible reason", () => {
   assert.match(waived.message, /Read-only skill/);
   assert.match(renderMarkdown(report), /WAIVED Side-effect boundaries/);
 });
+
+for (const [fixture, message] of [
+  ["invalid-threshold-type", /threshold.*number from 0 to 100/i],
+  ["invalid-threshold-range", /threshold.*number from 0 to 100/i],
+  ["invalid-docs", /extraRequiredDocs.*array of strings/i],
+  ["invalid-waivers", /waivers.*object/i],
+  ["invalid-waiver-reason", /waivers\.activation.*non-empty string/i]
+]) {
+  test(`rejects ${fixture.replaceAll("-", " ")}`, () => {
+    assert.throws(() => checkSkillFolder(`fixtures/config-invalid/${fixture}`), message);
+  });
+}

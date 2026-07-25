@@ -14,7 +14,9 @@
 | Release notes | 10 | No |
 | Fixture evidence | 5 | No |
 
-The default passing threshold is 70, but any failing blocker keeps the status at `fail`.
+The default passing threshold is 70, but any failing blocker keeps the status at `fail`. A score
+below the threshold or an unwaived non-blocking finding produces `warn`. The CLI exits successfully
+only for `pass`, so both `warn` and `fail` block automated release checks.
 
 ## Config
 
@@ -30,4 +32,7 @@ Supported keys:
 Waived checks count toward the score and render as `waived`, but the reason remains visible in JSON and Markdown reports. Use waivers for documented, reviewed exceptions rather than to hide missing evidence.
 
 The config is parsed as JSON only. It cannot run code, import packages, or perform side effects.
+Thresholds must be finite numbers from 0 to 100, documentation lists must contain only non-empty
+strings, and waiver values must be non-empty reason strings. Invalid fields stop the check with a
+config-file error instead of falling back to an ineffective policy.
 An explicit CLI `--threshold` value overrides the config for that run; otherwise the fallback threshold is 70.
