@@ -106,6 +106,9 @@ function validateGateConfig(config, name) {
       throw new Error(`Invalid ${name}: ${field} must be an array of strings with no empty entries.`);
     }
   }
+  if (config.ignoreRequiredDocs?.includes("SKILL.md")) {
+    throw new Error(`Invalid ${name}: ignoreRequiredDocs must not include SKILL.md.`);
+  }
   if (config.waivers !== undefined) {
     if (!isPlainObject(config.waivers)) {
       throw new Error(`Invalid ${name}: waivers must be an object.`);
@@ -138,7 +141,8 @@ export function loadGateConfig(targetPath) {
 function configuredDocs(config) {
   const extra = Array.isArray(config.extraRequiredDocs) ? config.extraRequiredDocs : [];
   const ignore = new Set(Array.isArray(config.ignoreRequiredDocs) ? config.ignoreRequiredDocs : []);
-  return [...REQUIRED_DOCS, ...extra].filter((name, index, docs) => docs.indexOf(name) === index && !ignore.has(name));
+  const baseline = REQUIRED_DOCS.filter((name) => !ignore.has(name));
+  return [...baseline, ...extra].filter((name, index, docs) => docs.indexOf(name) === index);
 }
 
 function collectFiles(root, requiredDocs) {
