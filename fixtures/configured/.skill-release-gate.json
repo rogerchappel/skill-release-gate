@@ -2,5 +2,8 @@
   "threshold": 90,
   "extraRequiredDocs": [
     "docs/SAFETY.md"
+  ],
+  "ignoreRequiredDocs": [
+    "docs/SAFETY.md"
   ]
 }

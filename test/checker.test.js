@@ -50,6 +50,12 @@ test("config can add required docs and default threshold", () => {
   assert.ok(report.files.includes("docs/SAFETY.md"));
 });
 
+test("ignoreRequiredDocs applies only to baseline docs, not extra required docs", () => {
+  const report = checkSkillFolder("fixtures/configured");
+  assert.ok(report.config.requiredDocs.includes("docs/SAFETY.md"));
+  assert.ok(report.files.includes("docs/SAFETY.md"));
+});
+
 test("config can waive a named check with a visible reason", () => {
   const report = checkSkillFolder("fixtures/waived");
   const waived = report.findings.find((finding) => finding.id === "side-effects");
@@ -64,6 +70,7 @@ for (const [fixture, message] of [
   ["invalid-threshold-type", /threshold.*number from 0 to 100/i],
   ["invalid-threshold-range", /threshold.*number from 0 to 100/i],
   ["invalid-docs", /extraRequiredDocs.*array of strings/i],
+  ["ignore-skill-doc", /ignoreRequiredDocs.*must not include SKILL\.md/i],
   ["invalid-waivers", /waivers.*object/i],
   ["invalid-waiver-reason", /waivers\.activation.*non-empty string/i]
 ]) {
