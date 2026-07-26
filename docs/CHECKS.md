@@ -26,7 +26,8 @@ Supported keys:
 
 - `threshold`: default score threshold for that folder when the CLI does not receive `--threshold`.
 - `extraRequiredDocs`: additional local documentation paths that must exist.
-- `ignoreRequiredDocs`: default documentation paths to skip for that folder.
+- `ignoreRequiredDocs`: baseline documentation paths to skip for that folder, except the mandatory
+  `SKILL.md` entry point. It does not cancel paths listed in `extraRequiredDocs`.
 - `waivers`: object mapping a check id to the human-readable reason it is waived.
 
 Waived checks count toward the score and render as `waived`, but the reason remains visible in JSON and Markdown reports. Use waivers for documented, reviewed exceptions rather than to hide missing evidence.
@@ -35,4 +36,6 @@ The config is parsed as JSON only. It cannot run code, import packages, or perfo
 Thresholds must be finite numbers from 0 to 100, documentation lists must contain only non-empty
 strings, and waiver values must be non-empty reason strings. Invalid fields stop the check with a
 config-file error instead of falling back to an ineffective policy.
+An `ignoreRequiredDocs` entry for `SKILL.md` is invalid so every checked folder must retain its
+canonical skill entry point.
 An explicit CLI `--threshold` value overrides the config for that run; otherwise the fallback threshold is 70.
