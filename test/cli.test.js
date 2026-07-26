@@ -23,6 +23,13 @@ test("cli exits nonzero for failed fixture", () => {
   assert.equal(result.status, 1);
 });
 
+test("cli rejects config that tries to ignore the mandatory SKILL.md", () => {
+  const result = runCli("check", "fixtures/config-invalid/ignore-skill-doc", "--format", "json");
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, "");
+  assert.match(result.stderr, /ignoreRequiredDocs.*must not include SKILL\.md/i);
+});
+
 test("cli uses the configured threshold when no override is provided", () => {
   const result = spawnSync("node", ["bin/skill-release-gate.js", "check", "fixtures/configured", "--format", "json"], {
     encoding: "utf8"
