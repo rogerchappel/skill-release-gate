@@ -22,6 +22,28 @@ function optionValue(args, option) {
   return value;
 }
 
+function validateOptions(args) {
+  const supportedOptions = new Set(["--format", "--output", "--threshold"]);
+
+  for (let index = 2; index < args.length; index += 2) {
+    const option = args[index];
+    if (!option.startsWith("--")) {
+      console.error(`Unexpected argument: ${option}`);
+      process.exit(2);
+    }
+    if (!supportedOptions.has(option)) {
+      console.error(`Unknown option: ${option}`);
+      process.exit(2);
+    }
+
+    const value = args[index + 1];
+    if (!value || value.startsWith("--")) {
+      console.error(`${option} requires a value.`);
+      process.exit(2);
+    }
+  }
+}
+
 const args = process.argv.slice(2);
 const command = args[0];
 
@@ -41,6 +63,8 @@ if (!target) {
   console.error("Missing required <path>.");
   process.exit(2);
 }
+
+validateOptions(args);
 
 const format = optionValue(args, "--format") ?? "markdown";
 const outputPath = optionValue(args, "--output") ?? "";
