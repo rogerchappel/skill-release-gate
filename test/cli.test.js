@@ -93,3 +93,33 @@ test("cli rejects an option where another option value is required", () => {
   assert.equal(result.status, 2);
   assert.match(result.stderr, /--format requires a value/);
 });
+
+test("cli rejects unknown options without running a check", () => {
+  for (const args of [
+    ["check", "fixtures/pass", "--bogus"],
+    ["check", "fixtures/pass", "--bogus", "value"]
+  ]) {
+    const result = runCli(...args);
+    assert.equal(result.status, 2);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /Unknown option: --bogus/);
+  }
+});
+
+test("cli rejects extra positional arguments without running a check", () => {
+  const result = runCli("check", "fixtures/pass", "unexpected");
+  assert.equal(result.status, 2);
+  assert.equal(result.stdout, "");
+  assert.match(result.stderr, /Unexpected argument: unexpected/);
+});
+
+test("cli accepts valid options in every supported order", () => {
+  for (const options of [
+    ["--format", "json", "--threshold", "80"],
+    ["--threshold", "80", "--format", "json"]
+  ]) {
+    const result = runCli("check", "fixtures/pass", ...options);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).threshold, 80);
+  }
+});

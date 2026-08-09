@@ -21,6 +21,7 @@ skill-release-gate check <path> [--format markdown|json] [--threshold number] [-
 The command reads local files only. It exits with code `0` only for `pass`; both `warn` and `fail`
 exit with code `1`, so warnings block `release:check` until they are addressed or explicitly waived.
 Option values are required when an option is present, and `--threshold` accepts a number from 0 to 100.
+Unknown options and extra positional arguments are rejected with usage exit code `2`.
 
 ## Configuration
 
