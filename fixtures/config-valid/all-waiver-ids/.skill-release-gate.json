@@ -1,0 +1,13 @@
+{
+  "waivers": {
+    "activation": "Reviewed",
+    "inputs": "Reviewed",
+    "tools": "Reviewed",
+    "side-effects": "Reviewed",
+    "examples": "Reviewed",
+    "verification": "Reviewed",
+    "limitations": "Reviewed",
+    "release-notes": "Reviewed",
+    "fixtures": "Reviewed"
+  }
+}

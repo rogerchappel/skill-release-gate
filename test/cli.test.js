@@ -30,6 +30,18 @@ test("cli rejects config that tries to ignore the mandatory SKILL.md", () => {
   assert.match(result.stderr, /ignoreRequiredDocs.*must not include SKILL\.md/i);
 });
 
+for (const [fixture, message] of [
+  ["unknown-waiver-id", /\.skill-release-gate\.json.*unknown waiver check ID side-effects-typo/i],
+  ["unknown-field", /\.skill-release-gate\.json.*unknown config field threshhold/i]
+]) {
+  test(`cli rejects ${fixture.replaceAll("-", " ")} before running checks`, () => {
+    const result = runCli("check", `fixtures/config-invalid/${fixture}`, "--format", "json");
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, message);
+  });
+}
+
 test("cli uses the configured threshold when no override is provided", () => {
   const result = spawnSync("node", ["bin/skill-release-gate.js", "check", "fixtures/configured", "--format", "json"], {
     encoding: "utf8"
