@@ -3,6 +3,7 @@ import { basename, join, resolve } from "node:path";
 
 const REQUIRED_DOCS = ["SKILL.md", "README.md", "docs/PRD.md", "docs/TASKS.md", "docs/ORCHESTRATION.md"];
 const CONFIG_FILES = [".skill-release-gate.json", "skill-release-gate.config.json"];
+const CONFIG_KEYS = new Set(["threshold", "extraRequiredDocs", "ignoreRequiredDocs", "waivers"]);
 
 const CHECKS = [
   {
@@ -78,6 +79,7 @@ const CHECKS = [
     message: "Include fixture or example files for repeatable review."
   }
 ];
+const CHECK_IDS = new Set(CHECKS.map((check) => check.id));
 
 function readIfExists(path) {
   return existsSync(path) ? readFileSync(path, "utf8") : "";
@@ -90,6 +92,11 @@ function isPlainObject(value) {
 function validateGateConfig(config, name) {
   if (!isPlainObject(config)) {
     throw new Error(`Invalid ${name}: config must be a JSON object.`);
+  }
+  for (const field of Object.keys(config)) {
+    if (!CONFIG_KEYS.has(field)) {
+      throw new Error(`Invalid ${name}: unknown config field ${field}.`);
+    }
   }
   if (
     config.threshold !== undefined &&
@@ -114,6 +121,9 @@ function validateGateConfig(config, name) {
       throw new Error(`Invalid ${name}: waivers must be an object.`);
     }
     for (const [check, reason] of Object.entries(config.waivers)) {
+      if (!CHECK_IDS.has(check)) {
+        throw new Error(`Invalid ${name}: unknown waiver check ID ${check}.`);
+      }
       if (typeof reason !== "string" || reason.trim() === "") {
         throw new Error(`Invalid ${name}: waivers.${check} must be a non-empty string.`);
       }
