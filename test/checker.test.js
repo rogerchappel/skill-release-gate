@@ -66,13 +66,30 @@ test("config can waive a named check with a visible reason", () => {
   assert.match(renderMarkdown(report), /WAIVED Side-effect boundaries/);
 });
 
+test("accepts every documented waiver check ID", () => {
+  const { config } = loadGateConfig("fixtures/config-valid/all-waiver-ids");
+  assert.deepEqual(Object.keys(config.waivers), [
+    "activation",
+    "inputs",
+    "tools",
+    "side-effects",
+    "examples",
+    "verification",
+    "limitations",
+    "release-notes",
+    "fixtures"
+  ]);
+});
+
 for (const [fixture, message] of [
   ["invalid-threshold-type", /threshold.*number from 0 to 100/i],
   ["invalid-threshold-range", /threshold.*number from 0 to 100/i],
   ["invalid-docs", /extraRequiredDocs.*array of strings/i],
   ["ignore-skill-doc", /ignoreRequiredDocs.*must not include SKILL\.md/i],
   ["invalid-waivers", /waivers.*object/i],
-  ["invalid-waiver-reason", /waivers\.activation.*non-empty string/i]
+  ["invalid-waiver-reason", /waivers\.activation.*non-empty string/i],
+  ["unknown-waiver-id", /\.skill-release-gate\.json.*unknown waiver check ID side-effects-typo/i],
+  ["unknown-field", /\.skill-release-gate\.json.*unknown config field threshhold/i]
 ]) {
   test(`rejects ${fixture.replaceAll("-", " ")}`, () => {
     assert.throws(() => checkSkillFolder(`fixtures/config-invalid/${fixture}`), message);
