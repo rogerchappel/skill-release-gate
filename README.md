@@ -41,8 +41,11 @@ static JSON and never execute code.
 
 Configuration is validated before checks run. `threshold` must be a finite number from 0 to 100;
 `extraRequiredDocs` and `ignoreRequiredDocs` must be arrays of non-empty strings; and `waivers`
-must be an object whose values are non-empty reason strings. Invalid configuration exits nonzero
-with the config filename and field in the error. `SKILL.md` is the mandatory skill entry point and
+must be an object whose keys are accepted check IDs and whose values are non-empty reason strings.
+The only accepted top-level keys are `threshold`, `extraRequiredDocs`, `ignoreRequiredDocs`, and
+`waivers`; unknown fields and waiver IDs are rejected so policy misspellings cannot be ignored.
+Invalid configuration exits nonzero with the config filename and invalid field or ID in the error.
+`SKILL.md` is the mandatory skill entry point and
 cannot be listed in `ignoreRequiredDocs`; use that option only for the other baseline documentation
 paths. Missing extra required docs can be reported, but they cannot be ignored after being added.
 
