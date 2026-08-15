@@ -11,8 +11,10 @@
     "check": "node --check src/index.js && node --check bin/skill-release-gate.js",
     "smoke": "node bin/skill-release-gate.js check fixtures/pass --format markdown",
     "build": "node scripts/build.js",
+    "example:check": "node scripts/example-report.js",
+    "example:update": "node scripts/example-report.js --write",
     "package:smoke": "node scripts/package-smoke.js",
-    "release:check": "npm run check && npm test && npm run build && npm run smoke && npm run package:smoke",
+    "release:check": "npm run check && npm test && npm run build && npm run smoke && npm run example:check && npm run package:smoke",
     "lint": "npm run check"
   },
   "keywords": [

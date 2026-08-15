@@ -1,10 +1,28 @@
 {
   "tool": "skill-release-gate",
-  "path": "/Users/roger/Developer/my-opensource/skill-release-gate/fixtures/pass",
+  "path": "fixtures/pass",
   "name": "pass",
   "score": 100,
   "threshold": 70,
   "status": "pass",
+  "summary": {
+    "pass": 9,
+    "waived": 0,
+    "warn": 0,
+    "fail": 0,
+    "error": 4,
+    "warning": 5
+  },
+  "config": {
+    "path": "",
+    "requiredDocs": [
+      "SKILL.md",
+      "README.md",
+      "docs/PRD.md",
+      "docs/TASKS.md",
+      "docs/ORCHESTRATION.md"
+    ]
+  },
   "files": [
     "SKILL.md",
     "README.md",
