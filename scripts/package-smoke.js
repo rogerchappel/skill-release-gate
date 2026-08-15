@@ -1,4 +1,6 @@
 import { spawnSync } from "node:child_process";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 const result = spawnSync("npm", ["pack", "--dry-run"], { encoding: "utf8" });
 const output = `${result.stdout || ""}\n${result.stderr || ""}`;
@@ -14,6 +16,7 @@ const required = [
   "fixtures/pass/SKILL.md",
   "docs/CHECKS.md",
   "docs/RELEASE_CANDIDATE.md",
+  "docs/example-report.json",
   "SKILL.md",
   "README.md",
   "LICENSE",
@@ -25,6 +28,20 @@ const required = [
 const missing = required.filter((entry) => !output.includes(entry));
 if (missing.length > 0) {
   console.error(`package smoke missing entries:\n${missing.join("\n")}`);
+  process.exit(1);
+}
+
+function filesUnder(directory) {
+  return readdirSync(directory).flatMap((entry) => {
+    const path = join(directory, entry);
+    return statSync(path).isDirectory() ? filesUnder(path) : [path];
+  });
+}
+
+const machinePathPattern = /(?:\/Users\/[^/\s"']+\/|\/home\/[^/\s"']+\/|[A-Za-z]:\\Users\\[^\\\s"']+\\)/;
+const leakedPaths = filesUnder("docs").filter((path) => machinePathPattern.test(readFileSync(path, "utf8")));
+if (leakedPaths.length > 0) {
+  console.error(`package smoke found maintainer-machine paths in shipped docs:\n${leakedPaths.join("\n")}`);
   process.exit(1);
 }
 
