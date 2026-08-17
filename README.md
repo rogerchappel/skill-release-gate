@@ -12,6 +12,10 @@ npm run smoke
 node bin/skill-release-gate.js check fixtures/pass --format json
 ```
 
+The checked-in `docs/example-report.json` is produced by that deterministic fixture invocation. Its
+absolute CLI `path` is normalized to the portable value `fixtures/pass`; run `npm run example:update`
+after intentional report changes, and `npm run example:check` to detect drift.
+
 ## CLI
 
 ```bash
@@ -57,6 +61,7 @@ Run the release-readiness gate before promoting the package:
 npm run check
 npm test
 npm run smoke
+npm run example:check
 npm run package:smoke
 npm run release:check
 ```
