@@ -30,6 +30,14 @@ test("cli rejects config that tries to ignore the mandatory SKILL.md", () => {
   assert.match(result.stderr, /ignoreRequiredDocs.*must not include SKILL\.md/i);
 });
 
+test("cli rejects a directory-valued extra required doc with an actionable error", () => {
+  const result = runCli("check", "fixtures/config-invalid/directory-doc", "--format", "json");
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, "");
+  assert.match(result.stderr, /extraRequiredDocs.*docs.*regular file/i);
+  assert.doesNotMatch(result.stderr, /EISDIR/);
+});
+
 for (const [fixture, message] of [
   ["unknown-waiver-id", /\.skill-release-gate\.json.*unknown waiver check ID side-effects-typo/i],
   ["unknown-field", /\.skill-release-gate\.json.*unknown config field threshhold/i]

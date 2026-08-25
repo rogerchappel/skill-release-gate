@@ -155,6 +155,15 @@ function configuredDocs(config) {
   return [...baseline, ...extra].filter((name, index, docs) => docs.indexOf(name) === index);
 }
 
+function validateExtraRequiredDocs(root, config) {
+  for (const name of config.extraRequiredDocs ?? []) {
+    const path = join(root, name);
+    if (existsSync(path) && !statSync(path).isFile()) {
+      throw new Error(`Invalid extraRequiredDocs entry ${JSON.stringify(name)}: path must be a regular file.`);
+    }
+  }
+}
+
 function collectFiles(root, requiredDocs) {
   const files = [];
   for (const name of requiredDocs) {
@@ -205,6 +214,7 @@ export function checkSkillFolder(targetPath, options = {}) {
   }
 
   const { path: configPath, config } = loadGateConfig(root);
+  validateExtraRequiredDocs(root, config);
   const requiredDocs = configuredDocs(config);
   const waivers = config.waivers && typeof config.waivers === "object" ? config.waivers : {};
   const files = collectFiles(root, requiredDocs);

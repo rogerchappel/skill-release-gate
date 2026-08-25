@@ -46,6 +46,8 @@ static JSON and never execute code.
 Configuration is validated before checks run. `threshold` must be a finite number from 0 to 100;
 `extraRequiredDocs` and `ignoreRequiredDocs` must be arrays of non-empty strings; and `waivers`
 must be an object whose keys are accepted check IDs and whose values are non-empty reason strings.
+Each existing path listed in `extraRequiredDocs` must resolve to a regular file; directories and
+other non-file entries are rejected with an error that identifies the configured value.
 The only accepted top-level keys are `threshold`, `extraRequiredDocs`, `ignoreRequiredDocs`, and
 `waivers`; unknown fields and waiver IDs are rejected so policy misspellings cannot be ignored.
 Invalid configuration exits nonzero with the config filename and invalid field or ID in the error.
