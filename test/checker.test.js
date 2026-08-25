@@ -50,6 +50,13 @@ test("config can add required docs and default threshold", () => {
   assert.ok(report.files.includes("docs/SAFETY.md"));
 });
 
+test("rejects an extra required doc that is not a regular file", () => {
+  assert.throws(
+    () => checkSkillFolder("fixtures/config-invalid/directory-doc"),
+    /extraRequiredDocs.*docs.*regular file/i
+  );
+});
+
 test("ignoreRequiredDocs applies only to baseline docs, not extra required docs", () => {
   const report = checkSkillFolder("fixtures/configured");
   assert.ok(report.config.requiredDocs.includes("docs/SAFETY.md"));
