@@ -18,6 +18,10 @@ The default passing threshold is 70, but any failing blocker keeps the status at
 below the threshold or an unwaived non-blocking finding produces `warn`. The CLI exits successfully
 only for `pass`, so both `warn` and `fail` block automated release checks.
 
+Readiness phrases are matched only in visible documentation text. Content inside HTML comments or
+CommonMark backtick and tilde fenced code blocks does not satisfy a check. Comment markers inside a
+fenced block remain code, and visible text after a closing comment or fence is evaluated normally.
+
 ## Config
 
 Skill folders can include `.skill-release-gate.json` or `skill-release-gate.config.json`.
