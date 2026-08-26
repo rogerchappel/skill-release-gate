@@ -173,6 +173,59 @@ function collectFiles(root, requiredDocs) {
   return files;
 }
 
+function visibleMarkdown(text) {
+  const visible = [];
+  let fence = null;
+  let inComment = false;
+
+  for (const line of text.split(/\r?\n/)) {
+    if (fence) {
+      const closing = line.match(/^ {0,3}(`+|~+)\s*$/);
+      if (closing && closing[1][0] === fence.marker && closing[1].length >= fence.length) {
+        fence = null;
+      }
+      visible.push("");
+      continue;
+    }
+
+    if (!inComment) {
+      const opening = line.match(/^ {0,3}(`{3,}|~{3,})/);
+      if (opening) {
+        fence = { marker: opening[1][0], length: opening[1].length };
+        visible.push("");
+        continue;
+      }
+    }
+
+    let rest = line;
+    let output = "";
+    while (rest.length > 0) {
+      if (inComment) {
+        const end = rest.indexOf("-->");
+        if (end === -1) {
+          rest = "";
+        } else {
+          inComment = false;
+          rest = rest.slice(end + 3);
+        }
+      } else {
+        const start = rest.indexOf("<!--");
+        if (start === -1) {
+          output += rest;
+          rest = "";
+        } else {
+          output += rest.slice(0, start);
+          inComment = true;
+          rest = rest.slice(start + 4);
+        }
+      }
+    }
+    visible.push(output);
+  }
+
+  return visible.join("\n");
+}
+
 function hasFixtureEvidence(root) {
   for (const name of ["fixtures", "examples", "test", "tests"]) {
     const path = join(root, name);
@@ -218,7 +271,7 @@ export function checkSkillFolder(targetPath, options = {}) {
   const requiredDocs = configuredDocs(config);
   const waivers = config.waivers && typeof config.waivers === "object" ? config.waivers : {};
   const files = collectFiles(root, requiredDocs);
-  const combined = files.map((file) => file.text).join("\n\n");
+  const combined = files.map((file) => visibleMarkdown(file.text)).join("\n\n");
   const findings = [];
   let score = 0;
 
