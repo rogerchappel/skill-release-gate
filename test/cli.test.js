@@ -23,6 +23,14 @@ test("cli exits nonzero for failed fixture", () => {
   assert.equal(result.status, 1);
 });
 
+test("cli rejects a fixture whose readiness evidence is hidden", () => {
+  const result = runCli("check", "fixtures/visibility-hidden", "--format", "json");
+  assert.equal(result.status, 1);
+  const report = JSON.parse(result.stdout);
+  assert.equal(report.status, "fail");
+  assert.equal(report.score, 5);
+});
+
 test("cli rejects config that tries to ignore the mandatory SKILL.md", () => {
   const result = runCli("check", "fixtures/config-invalid/ignore-skill-doc", "--format", "json");
   assert.equal(result.status, 1);
