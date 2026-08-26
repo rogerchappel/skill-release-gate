@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { checkSkillFolder, loadGateConfig, renderJson, renderMarkdown } from "../src/index.js";
 
 test("passing fixture is release ready", () => {
@@ -19,6 +22,30 @@ test("missing skill file is a release blocker", () => {
   const report = checkSkillFolder("fixtures/fail");
   assert.equal(report.status, "fail");
   assert.ok(report.findings.some((finding) => finding.id === "missing-SKILL.md"));
+});
+
+test("readiness phrases hidden in comments and fences do not count", () => {
+  const report = checkSkillFolder("fixtures/visibility-hidden");
+  assert.equal(report.status, "fail");
+  assert.equal(report.score, 5);
+  assert.deepEqual(
+    report.findings.slice(0, 8).map((finding) => finding.result),
+    ["fail", "fail", "warn", "fail", "warn", "fail", "warn", "warn"]
+  );
+});
+
+test("visibility filtering handles CRLF and preserves text after closures", () => {
+  const root = mkdtempSync(join(tmpdir(), "skill-release-gate-crlf-"));
+  try {
+    cpSync("fixtures/visibility-boundaries", root, { recursive: true });
+    const skillPath = join(root, "SKILL.md");
+    writeFileSync(skillPath, readFileSync(skillPath, "utf8").replaceAll("\n", "\r\n"));
+    const report = checkSkillFolder(root);
+    assert.equal(report.status, "pass");
+    assert.equal(report.score, 100);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("renderers expose deterministic report data", () => {
