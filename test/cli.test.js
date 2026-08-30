@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 function runCli(...args) {
   return spawnSync("node", ["bin/skill-release-gate.js", ...args], { encoding: "utf8" });
@@ -45,6 +47,31 @@ test("cli rejects a directory-valued extra required doc with an actionable error
   assert.match(result.stderr, /extraRequiredDocs.*docs.*regular file/i);
   assert.doesNotMatch(result.stderr, /EISDIR/);
 });
+
+for (const [name, expectedStatus, expectedSeverity] of [
+  ["SKILL.md", "fail", "error"],
+  ["README.md", "warn", "warn"]
+]) {
+  test(`cli reports a directory-valued ${name} without a filesystem exception`, () => {
+    const root = mkdtempSync(join(tmpdir(), "skill-release-gate-cli-baseline-"));
+    try {
+      if (name !== "SKILL.md") cpSync("fixtures/pass/SKILL.md", join(root, "SKILL.md"));
+      mkdirSync(join(root, name), { recursive: true });
+      const result = runCli("check", root, "--format", "json");
+      assert.equal(result.status, 1);
+      assert.equal(result.stderr, "");
+      assert.doesNotMatch(result.stdout, /EISDIR/);
+      const report = JSON.parse(result.stdout);
+      const finding = report.findings.find((entry) => entry.id === `missing-${name}`);
+      assert.equal(report.status, expectedStatus);
+      assert.equal(finding.severity, expectedSeverity);
+      assert.equal(finding.result, expectedStatus);
+      assert.match(finding.message, /not found or is not a regular file/i);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+}
 
 for (const [fixture, message] of [
   ["unknown-waiver-id", /\.skill-release-gate\.json.*unknown waiver check ID side-effects-typo/i],

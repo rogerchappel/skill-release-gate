@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { checkSkillFolder, loadGateConfig, renderJson, renderMarkdown } from "../src/index.js";
@@ -22,6 +22,40 @@ test("missing skill file is a release blocker", () => {
   const report = checkSkillFolder("fixtures/fail");
   assert.equal(report.status, "fail");
   assert.ok(report.findings.some((finding) => finding.id === "missing-SKILL.md"));
+});
+
+test("directory-valued baseline documents are reported as invalid documents", () => {
+  const root = mkdtempSync(join(tmpdir(), "skill-release-gate-baseline-docs-"));
+  try {
+    mkdirSync(join(root, "SKILL.md"));
+    mkdirSync(join(root, "README.md"));
+    const report = checkSkillFolder(root);
+    assert.equal(report.status, "fail");
+    assert.deepEqual(report.files, []);
+    assert.deepEqual(
+      report.findings.filter((finding) => ["missing-SKILL.md", "missing-README.md"].includes(finding.id)),
+      [
+        {
+          id: "missing-SKILL.md",
+          title: "Missing SKILL.md",
+          severity: "error",
+          result: "fail",
+          message: "SKILL.md was not found or is not a regular file.",
+          weight: 0
+        },
+        {
+          id: "missing-README.md",
+          title: "Missing README.md",
+          severity: "warn",
+          result: "warn",
+          message: "README.md was not found or is not a regular file.",
+          weight: 0
+        }
+      ]
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("readiness phrases hidden in comments and fences do not count", () => {
