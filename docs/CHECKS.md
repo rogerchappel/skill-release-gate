@@ -45,4 +45,7 @@ in the table; unknown fields and IDs are rejected, and the error identifies the 
 invalid value. Validation happens before any readiness checks run.
 An `ignoreRequiredDocs` entry for `SKILL.md` is invalid so every checked folder must retain its
 canonical skill entry point.
+Required documents count as present only when their paths are regular files. Non-file baseline
+paths produce deterministic missing-document findings: an invalid `SKILL.md` is an error and other
+invalid baseline documents are warnings.
 An explicit CLI `--threshold` value overrides the config for that run; otherwise the fallback threshold is 70.

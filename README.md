@@ -54,6 +54,9 @@ Invalid configuration exits nonzero with the config filename and invalid field o
 `SKILL.md` is the mandatory skill entry point and
 cannot be listed in `ignoreRequiredDocs`; use that option only for the other baseline documentation
 paths. Missing extra required docs can be reported, but they cannot be ignored after being added.
+Every required-document path, including baseline paths such as `SKILL.md` and `README.md`, must be
+a regular file. A directory or other non-file at a required path is reported with the same severity
+as a missing document: `SKILL.md` blocks release, while optional baseline documents warn.
 
 ## Verify
 
