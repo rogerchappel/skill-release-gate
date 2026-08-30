@@ -168,7 +168,9 @@ function collectFiles(root, requiredDocs) {
   const files = [];
   for (const name of requiredDocs) {
     const path = join(root, name);
-    if (existsSync(path)) files.push({ name, path, text: readIfExists(path) });
+    if (existsSync(path) && statSync(path).isFile()) {
+      files.push({ name, path, text: readIfExists(path) });
+    }
   }
   return files;
 }
@@ -289,14 +291,17 @@ export function checkSkillFolder(targetPath, options = {}) {
     });
   }
 
-  const missingDocs = requiredDocs.filter((name) => !existsSync(join(root, name)));
+  const missingDocs = requiredDocs.filter((name) => {
+    const path = join(root, name);
+    return !existsSync(path) || !statSync(path).isFile();
+  });
   for (const name of missingDocs) {
     findings.push({
       id: `missing-${name}`,
       title: `Missing ${name}`,
       severity: name === "SKILL.md" ? "error" : "warn",
       result: name === "SKILL.md" ? "fail" : "warn",
-      message: `${name} was not found.`,
+      message: `${name} was not found or is not a regular file.`,
       weight: 0
     });
   }
