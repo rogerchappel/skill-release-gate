@@ -18,6 +18,11 @@ The default passing threshold is 70, but any failing blocker keeps the status at
 below the threshold or an unwaived non-blocking finding produces `warn`. The CLI exits successfully
 only for `pass`, so both `warn` and `fail` block automated release checks.
 
+Fixture evidence requires at least one regular file beneath `fixtures/`, `examples/`, `test/`, or
+`tests/`. These directories are searched recursively; dot-prefixed files and directories are
+ignored. Empty directories, directory-only trees, and hidden-only contents therefore produce the
+fixture warning and keep the release status at `warn` unless the check is waived.
+
 Readiness phrases are matched only in visible documentation text. Content inside HTML comments or
 CommonMark backtick and tilde fenced code blocks does not satisfy a check. Comment markers inside a
 fenced block remain code, and visible text after a closing comment or fence is evaluated normally.
