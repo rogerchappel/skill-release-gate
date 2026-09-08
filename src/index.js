@@ -229,12 +229,20 @@ function visibleMarkdown(text) {
 }
 
 function hasFixtureEvidence(root) {
+  function containsVisibleFile(path) {
+    for (const entry of readdirSync(path, { withFileTypes: true })) {
+      if (entry.name.startsWith(".")) continue;
+      if (entry.isFile()) return true;
+      if (entry.isDirectory() && containsVisibleFile(join(path, entry.name))) return true;
+    }
+    return false;
+  }
+
   for (const name of ["fixtures", "examples", "test", "tests"]) {
     const path = join(root, name);
     if (!existsSync(path)) continue;
     if (!statSync(path).isDirectory()) continue;
-    const entries = readdirSync(path).filter((entry) => !entry.startsWith("."));
-    if (entries.length > 0) return true;
+    if (containsVisibleFile(path)) return true;
   }
   return false;
 }
