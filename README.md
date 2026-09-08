@@ -81,7 +81,10 @@ npm run release:check
 - Verification workflow
 - Limitations
 - Release notes
-- Fixture or example evidence
+- Fixture or example evidence: at least one non-hidden regular file anywhere
+  under `fixtures/`, `examples/`, `test/`, or `tests/`. The search is recursive,
+  ignores dot-prefixed files and directories, and does not count empty or
+  directory-only trees.
 
 See `docs/CHECKS.md` for weights and blocker rules.
 
