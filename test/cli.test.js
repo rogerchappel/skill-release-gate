@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { tmpdir } from "node:os";
@@ -7,6 +7,14 @@ import { join } from "node:path";
 
 function runCli(...args) {
   return spawnSync("node", ["bin/skill-release-gate.js", ...args], { encoding: "utf8" });
+}
+
+function makeFixtureTree(setup) {
+  const root = mkdtempSync(join(tmpdir(), "skill-release-gate-cli-fixtures-"));
+  cpSync("fixtures/pass", root, { recursive: true });
+  rmSync(join(root, "fixtures"), { recursive: true, force: true });
+  setup(join(root, "fixtures"));
+  return root;
 }
 
 test("cli writes an output report", () => {
@@ -23,6 +31,33 @@ test("cli writes an output report", () => {
 test("cli exits nonzero for failed fixture", () => {
   const result = runCli("check", "fixtures/fail");
   assert.equal(result.status, 1);
+});
+
+test("cli blocks fixture trees without visible regular-file evidence", (t) => {
+  const cases = [
+    ["empty", (path) => mkdirSync(path), "warn", 1],
+    ["nested empty", (path) => mkdirSync(join(path, "nested"), { recursive: true }), "warn", 1],
+    ["hidden only", (path) => {
+      mkdirSync(path);
+      writeFileSync(join(path, ".fixture.json"), "{}\n");
+    }, "warn", 1],
+    ["nested file", (path) => {
+      mkdirSync(join(path, "nested"), { recursive: true });
+      writeFileSync(join(path, "nested", "fixture.json"), "{}\n");
+    }, "pass", 0],
+    ["regular file", (path) => {
+      mkdirSync(path);
+      writeFileSync(join(path, "fixture.json"), "{}\n");
+    }, "pass", 0]
+  ];
+
+  for (const [name, setup, status, exitCode] of cases) {
+    const root = makeFixtureTree(setup);
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    const result = runCli("check", root, "--format", "json");
+    assert.equal(result.status, exitCode, name);
+    assert.equal(JSON.parse(result.stdout).status, status, name);
+  }
 });
 
 test("cli rejects a fixture whose readiness evidence is hidden", () => {

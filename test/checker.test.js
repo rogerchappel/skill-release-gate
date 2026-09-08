@@ -5,6 +5,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { checkSkillFolder, loadGateConfig, renderJson, renderMarkdown } from "../src/index.js";
 
+function makeFixtureTree(setup) {
+  const root = mkdtempSync(join(tmpdir(), "skill-release-gate-fixtures-"));
+  cpSync("fixtures/pass", root, { recursive: true });
+  rmSync(join(root, "fixtures"), { recursive: true, force: true });
+  setup(join(root, "fixtures"));
+  return root;
+}
+
 test("passing fixture is release ready", () => {
   const report = checkSkillFolder("fixtures/pass");
   assert.equal(report.status, "pass");
@@ -16,6 +24,34 @@ test("warning fixture keeps release in review", () => {
   const report = checkSkillFolder("fixtures/warn");
   assert.equal(report.status, "fail");
   assert.ok(report.findings.some((finding) => finding.id === "side-effects"));
+});
+
+test("fixture evidence requires a visible regular file at any depth", (t) => {
+  const cases = [
+    ["empty", (path) => mkdirSync(path), false],
+    ["nested empty", (path) => mkdirSync(join(path, "nested"), { recursive: true }), false],
+    ["hidden only", (path) => {
+      mkdirSync(join(path, ".hidden"), { recursive: true });
+      writeFileSync(join(path, ".fixture.json"), "{}\n");
+      writeFileSync(join(path, ".hidden", "fixture.json"), "{}\n");
+    }, false],
+    ["nested file", (path) => {
+      mkdirSync(join(path, "nested"), { recursive: true });
+      writeFileSync(join(path, "nested", "fixture.json"), "{}\n");
+    }, true],
+    ["regular file", (path) => {
+      mkdirSync(path);
+      writeFileSync(join(path, "fixture.json"), "{}\n");
+    }, true]
+  ];
+
+  for (const [name, setup, passes] of cases) {
+    const root = makeFixtureTree(setup);
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    const report = checkSkillFolder(root);
+    assert.equal(report.findings.find((finding) => finding.id === "fixtures").result, passes ? "pass" : "warn", name);
+    assert.equal(report.status, passes ? "pass" : "warn", name);
+  }
 });
 
 test("missing skill file is a release blocker", () => {
