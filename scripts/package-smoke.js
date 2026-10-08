@@ -3,7 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const result = spawnSync("npm", ["pack", "--json"], { encoding: "utf8" });
+const temp = mkdtempSync(join(tmpdir(), "skill-release-gate-pack-"));
+const result = spawnSync("npm", ["pack", "--json", "--pack-destination", temp], { encoding: "utf8" });
 if (result.status !== 0) {
   process.stdout.write(`${result.stdout || ""}${result.stderr || ""}`);
   process.exit(result.status || 1);
@@ -26,9 +27,8 @@ const required = [
   "docs/CHECKS.md", "docs/RELEASE_CANDIDATE.md", "docs/example-report.json",
   "SKILL.md", "README.md", "LICENSE", "SECURITY.md", "CHANGELOG.md", "CONTRIBUTING.md"
 ];
-const temp = mkdtempSync(join(tmpdir(), "skill-release-gate-pack-"));
 try {
-  const archive = join(process.cwd(), tarball);
+  const archive = join(temp, tarball);
   const unpack = spawnSync("tar", ["-xzf", archive, "-C", temp], { encoding: "utf8" });
   if (unpack.status !== 0) throw new Error(`cannot extract package: ${unpack.stderr}`);
   const packageDir = join(temp, "package");
@@ -43,5 +43,4 @@ try {
   console.log("skill-release-gate packed artifact smoke ok");
 } finally {
   rmSync(temp, { recursive: true, force: true });
-  rmSync(tarball, { force: true });
 }
